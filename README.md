@@ -86,19 +86,19 @@ For brevity, the below are keywords that you can find-and-replace within the fil
 - i.e. `"DDNS"` -> `"my.ddns.net"`
 
 `DDNSUSER` Username of your account with No-IP
-- i.e. `"DDNSUSER"` -> `"myusername"`
+- i.e. `"DDNSUSER"` -> `"noipme"`
 
 `DDNSPASS` Password of your account with No-IP
 - i.e. `"DDNSPASS"` -> `"my1securepass!"`
 
 `EMAIL` Your email address
-- i.e. `"EMAIL"` -> `"myemail@gmail.com"`
+- i.e. `"EMAIL"` -> `"me@gmail.com"`
 
 `PIPASS` The password you want to use to access the Pihole admin page
-- i.e. `"PIPASS"` -> `"my0therp4ss"`
+- i.e. `"PIPASS"` -> `"mypip4ss"`
 
 `PEERS` A comma-separated list of client peers that will connect to Wireguard for VPN access
-- i.e. `"PEERS"` -> `"pc, mobile, client3"`
+- i.e. `"PEERS"` -> `"pc, pixel, iphone"`
  
 The following files also have some other optional tuneables:
 ***
@@ -115,10 +115,10 @@ Run `remote-init.sh` from your local Linux shell which orchestrates various conf
                     <DDNS domain name>                i.e. my.ddns.net
                     <your email address>              i.e. me@gmail.com
                     <your NOIP username>              i.e. noipme
-                    <your NOIP password>              i.e. s3cret\!1
-                    <your desired Pihole password>    i.e. pIp4ss
+                    <your NOIP password>              i.e. my1securepass\!
+                    <your desired Pihole password>    i.e. mypip4ss
                     <comma-separated list of peers>   i.e. "pc, pixel, iphone"
-> ./remote-init.sh 123.456.789.000 my.ddns.net me@gmail.com noipme s3cret\!1 pIp4ss "pc, pixel, iphone"
+> ./remote-init.sh 123.456.789.000 my.ddns.net me@gmail.com noipme my1securepass\! mypip4ss "pc, pixel, iphone"
 ```
 > Once `remote-init.sh` has completed and you're SSH'd into your cloud host instance, you're up and running! Now you can use `control.py` to perform common operations...
 
