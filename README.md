@@ -81,8 +81,7 @@ For example, in Oracle Cloud we'll need to configure our Security List on our Vi
 9. Repeatedly `Add Ingress Rules` for the ports you want to make accessible.
 10. Adding TCP/80 example, on the add ingress rule page, `Source Type` = `CIDR`, `Source CIDR` = `0.0.0.0/0`, `IP Protocol` = `TCP`, `Source Port Range` = `''`, `Destination Port Range` = `80`, `Description` = `LetsEncrypt challenge`.
 11. When done, `Ingress Rules` should look something like this.
-
-
+![Rules](/media/oci-vpn-sl.png)
 
 Ports are as follows...
 
@@ -118,7 +117,9 @@ For example, we'll set up a DDNS domain name via DuckDNS:
 1. Go to https://duckdns.org.
 2. Register an account.
 3. In the middle of the page, there is an entry for a new domain name and a button to `add domain`. Enter yours.
+![New](/media/duckdns-new.png)
 4. Your domain name should now be listed in the middle of the page. Above, there is a section that lists account details and included in that is `token`. Copy and save the token value somewhere; it'll be needed later.
+![Token](/media/duckdns-token.png)
 
 ## 5. Customizations prior to installation
 When running `remote-init.sh`, placeholder values are replaced with parameters provided. Placeholders in files are denoted by postpended `!!!`, such as `PLACEHOLDER!!!`. The following files also have some other optional tuneables:
