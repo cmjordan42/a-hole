@@ -3,10 +3,8 @@
 import sys, subprocess, argparse
 
 def main(argv):
-    containers = [ 'noip', 'certbot', 'pihole', 'wg', 'unbound', 'proxy' ]
-
     parser = argparse.ArgumentParser()
-    parser.add_argument('subsystem', nargs=1, choices=(['-'] + containers))
+    parser.add_argument('subsystem', nargs=1)
     parser.add_argument('operation', nargs=1)
     parser.add_argument('arguments', nargs=argparse.REMAINDER)
     cmd = parser.parse_args()
@@ -25,7 +23,7 @@ def main(argv):
         elif op == 'down':
             command += [ 'docker-compose', 'down' ]
             command += args
-    elif op in ('/', '?', '-') and subsystem in containers:
+    elif op in ('/', '?', '-'):
         if op == '/':
             command += dockerexec + [ subsystem ] + [ '/bin/bash' ]
         elif op == '?':
@@ -36,7 +34,7 @@ def main(argv):
         command += dockerexec + [ subsystem ] 
         if subsystem == 'certbot':
             print ('no specific daemon')
-        elif subsystem == 'noip':
+        elif subsystem == 'ddns':
             print ('no specific commands')
         elif subsystem == 'pihole':
             if op == 'password':

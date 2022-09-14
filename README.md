@@ -1,13 +1,9 @@
-# `a-hole`
+# `a*hole`
+A cloud-hosted blackhole for ads with many interfaces.
+
 (tldr at the end)
 
-A blackhole for ads, or an ad-hole.
-
-But since it provides inbound interfaces that are secure and semi-hidden from ISPs and other onlookers, it's `a*hole`.
-
-Sorry about the name.
-
-# Why!?
+# Why?
 As a pet project in 2019, I built all of this incrementally and a lot less cleanly, but it worked like a charm for me and mine. In Summer 2022, the public cloud VM in which I had built all of this - with limited version control - imploded. Virtually all was lost and the DNS on my devices was relegated to service from the likes of Comcast and spectated by the Chinese Communist Party.
 
 So, I decided to do it again but do it in a way that's entirely reproduceable so when the next VM implodes, it would be a matter of minutes until I had everything up and running again on a new host.
@@ -15,7 +11,7 @@ So, I decided to do it again but do it in a way that's entirely reproduceable so
 # Objectives
 The goal of this is to provide a low-maintenance setup to provide secure ad-blocking DNS service with a spectrum of access methods for a handful of known users and their devices.
 
-Downtime is acceptable and in order to keep the installation within the bounds of the Oracle Cloud free tier, there is limited fault tolerance and redundancy. Expect an installation to have issues semi-annually that can be resolved with minimal debugging or maybe just a reinstallation or an update. Public access to DoT and DoH is not an issue, so long as it's limited and without apparent malice.
+Downtime is acceptable and in order to keep the installation within the bounds of the Oracle Cloud free tier, there is limited fault tolerance and redundancy. Expect an installation to have issues semi-annually that can be resolved with minimal debugging or maybe just a reinstallation or an update. No worried about random users accessing the non-VPN endpoints so long as it's limited and without apparent malice.
 
 # Overview of components
 ## [Ubuntu](https://ubuntu.com/)
@@ -39,11 +35,17 @@ Unbound fits in as a local upstream DNS server which adds a bit of security and 
 ## [Certbot](https://certbot.eff.org/)
 Certbot provides lifecycle management for creating and maintaining security certificates to facilitate TLS and HTTPS, specifically in DNS-over-TLS.
 
-## [No-IP](https://www.noip.com/)
-NO-IP is a DDNS provider that has been around for decades and I chose them simply because I have had a DDNS registered with them for decades. Conveniently, there was also a light-weight docker container out there that can automatically update a DDNS entry. I wish that No-IP published it's own certified docker container, but beggars can't be choosers.
+## [DuckDNS](https://www.duckdns.org/)
+DuckDNS is a very simple, straightforward, reliable, popular DDNS provider, so we'll use it to manage our DDNS domain names to access `a-hole`.
+
+## [ddclient](https://ddclient.net/)
+ddclient provides updates to many DDNS services to keep the host machine IP and the DDNS domain names in sync. 
 
 ## Support scripts
-There are also some scripts which streamline setup (`remote-init.sh`), which streamline control of an active installation (`control.py`), and which aid in debugging various DNS functions (`dns-test.sh`).
+There are also a few scripts which make everything a snap:\
+`remote-init.sh` streamlines setup\
+`dns-test.sh` aids in debugging various DNS functions\
+`control.py` simplifies control of an active installation
 
 # tldr;
 Ad-blocking DNS-over-TLS, DNS-over-HTTPS, and DNS-via-VPN. Instructions to get it running are below.
@@ -59,54 +61,73 @@ You'll need a cloud infrastructure provider where you can:
 
 For example, Oracle Cloud as it has an "Always Free" tier that allows me to run this for free. Follow the steps below to get through this.
 
-1. 
+1. https://cloud.oracle.com.
+2. `Sign Up` for an Oracle Cloud Infrastrcture account.
+3. Choose a region that's reasonably proximate to where you live.
 
 ## 2. Set up firewall rules
-We've got all of the firewall management within the host handled, but we'll need to make sure that our cloud infrastructure provider allows a few ports through to our host. They are: 
-- `SSH` (TCP #22)
-- `Wireguard` (UDP #51820)
-- `DNS-over-TLS` via `dnsproxy` (TCP #853)
-- `DNS-over-HTTPS` via `dnsproxy` (TCP #443)
+We've got all of the firewall management within the host handled, but we'll need to make sure that our cloud infrastructure provider allows a few ports through to our host.
 
 For example, in Oracle Cloud we'll need to configure our Security List on our Virtual Cloud Network. Follow the steps below to get through this.
 
-1. 
+1. In Oracle Cloud, in the search entry at the top, query for `Virtual Cloud Networks` and navigate into the service (hereforth referred to as VCN).
+2. In the VCNs page, tap the button to `Create VCN`.
+3. Specify a name. Specify an `IPv4 CIDR block` of `10.0.0.0/16`. Save.
+4. Tap the link for the new VCN.
+5. On the VCN detail page, tap `Create Subnet`.
+6. Specify a name. Specify an `IPv4 CIDR block` of `10.0.0.0/24`. Save.
+7. Tap the link for the new Subnet.
+8. On the Subnet page at the bottom, tap the link for `Default Security List for ...`.
+9. Repeatedly `Add Ingress Rules` for the ports you want to make accessible.
+10. Adding TCP/80 example, on the add ingress rule page, `Source Type` = `CIDR`, `Source CIDR` = `0.0.0.0/0`, `IP Protocol` = `TCP`, `Source Port Range` = `''`, `Destination Port Range` = `80`, `Description` = `LetsEncrypt challenge`.
+11. When done, `Ingress Rules` should look something like this.
 
-## 3. Set up DDNS
+
+
+Ports are as follows...
+
+| Description  | Protocol | Port | Mandatory? |
+| - | - | - | - |
+| SSH  | TCP | 22 | Yes (pre-enabled)
+| LetsEncrypt Challenge  | TCP | 80 | Yes
+| Wireguard | UDP | 51820 | Yes
+| DNS-over-HTTPS | TCP | 443
+| DNS-over-TLS | TCP & UDP | 853
+| DNS-over-QUIC | TCP & UDP | 1853
+| DNSCrypt | TCP & UDP | 2853
+
+## 3. Create a host instance
+We need our cloud host instance where `a-hole` will run.
+
+For example, in Oracle Cloud we'll need to create and configure a new instance.
+
+1. In Oracle Cloud, in the search entry at the top, query for `Instances` and navigate into the service.
+2. In the Instances page, tap the `Create Instance` button.
+3. Specify a name.
+4. In the `Image and shape` section, tap `Edit` and `Change image` to `Ubuntu`. Select image.
+5. Below in the `Image and shape` section, `Change shape` to `VM.Standard.E2.1.Micro` which is under the `Specialty and previous generation` tab. Select shape.
+6. In the `Add SSH keys` section, specify a key pair however you wish in order to access the host once it's built. If you're not familiar with SSH, take a moment to learn how to generate keys and what role they play in SSH.
+7. At the very bottom of the page, `Create`.
+8. On the `Instance details` page, after a little while, a public IP will be assigned and populate the `Instance access` section next to `Public IP address`. Copy and save this IP address somewhere; it'll be needed later.
+
+## 4. Set up DDNS
 We need to use DDNS to identify our host by a domain name. If we used its IP, we would have to painstakingly update all client configurations in the event of the host being assigned a new IP.
 
-For example, I have used No-IP for decades and it gets the job done. Follow the steps below to get through this.
+For example, we'll set up a DDNS domain name via DuckDNS:
 
-1. 
+1. Go to https://duckdns.org.
+2. Register an account.
+3. In the middle of the page, there is an entry for a new domain name and a button to `add domain`. Enter yours.
+4. Your domain name should now be listed in the middle of the page. Above, there is a section that lists account details and included in that is `token`. Copy and save the token value somewhere; it'll be needed later.
 
-## 2. Customize prior to installation
-For brevity, the below are keywords that you can find-and-replace within the file in question. To expedite, when running `remote-init.sh` to install `a-hole`, these values are replaced. Placeholders are denoted by a prepended and postpended `!`, such as `!PLACEHOLDER!`
-***
-`DDNS` DDNS domain name that you registered with No-IP
-- i.e. `"DDNS"` -> `"my.ddns.net"`
+## 5. Customizations prior to installation
+When running `remote-init.sh`, placeholder values are replaced with parameters provided. Placeholders in files are denoted by postpended `!!!`, such as `PLACEHOLDER!!!`. The following files also have some other optional tuneables:
 
-`DDNSUSER` Username of your account with No-IP
-- i.e. `"DDNSUSER"` -> `"noipme"`
-
-`DDNSPASS` Password of your account with No-IP
-- i.e. `"DDNSPASS"` -> `"my1securepass!"`
-
-`EMAIL` Your email address
-- i.e. `"EMAIL"` -> `"me@gmail.com"`
-
-`PIPASS` The password you want to use to access the Pihole admin page
-- i.e. `"PIPASS"` -> `"mypip4ss"`
-
-`PEERS` A comma-separated list of client peers that will connect to Wireguard for VPN access
-- i.e. `"PEERS"` -> `"pc, pixel, iphone"`
- 
-The following files also have some other optional tuneables:
-***
 `docker-compose.yml`: Optionally, change `TZ` from America/New_York to your own timezone.
 
-`unbound-dns.conf`: Optionally, change `forward-addr` from OpenDNS IPs to Internet DNS servers of your choice
+`unbound.conf`: Optionally, change `forward-addr` from OpenDNS IPs to Internet DNS servers of your choice
 
-## 3. Install
+## 6. Install
 Run `remote-init.sh` from your local Linux shell which orchestrates various configurations of the cloud host instance to get it ready to run `a-hole`. Take care in inputting your parameters properly as arguments. Escape special characters (i.e. in passwords) and wrap your peer list in double quotes.
 
 ```
@@ -152,10 +173,10 @@ nginx >
 Run an arbitrary command in a running container
 ```
 > ./control.py <container> - <arbitrary command>
-> ./control.py nginx - echo "hi a-hole"
+> ./control.py  - echo "hi a-hole"
 hi a-hole
 ```
-## 4. How to configure some common clients
+## 6. How to configure some common clients
 PC using Wireguard
 
 - On the cloud host, run the following command to print out the Wireguard client configuration

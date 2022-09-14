@@ -1,35 +1,25 @@
 version: "3.9"
 
 services:
-  noip:
-    container_name: noip
-    image: coppit/no-ip:latest # https://hub.docker.com/r/coppit/no-ip
+  ddns:
+    container_name: ddns
+    image: linuxserver/ddclient:latest # https://hub.docker.com/r/linuxserver/ddclient
     networks:
       vpn:
         ipv4_address: 10.1.0.11
+    environment:
+      PUID: 1001
+      PGID: 1001
+      TZ: America/New_York
     volumes:
-      - /etc/localtime/:/etc/localtime/
-      - ./noip-config/:/config/
-      - ./noip.conf:/config/noip.conf
+      - ./ddclient.conf:/config/ddclient.conf
     restart: unless-stopped
-
-  # ddns:
-  #   container_name: ddns
-  #   image: linuxserver/ddclient:latest # https://hub.docker.com/r/linuxserver/ddclient
-  #   networks:
-  #     vpn:
-  #       ipv4_address: 10.1.0.11
-  #   volumes:
-  #     - /etc/localtime/:/etc/localtime/
-  #     - ./noip-config/:/config/
-  #     - ./noip.conf:/config/noip.conf
-  #   restart: unless-stopped
 
   certbot:
     container_name: certbot
     image: certbot/certbot # https://hub.docker.com/r/certbot/certbot
     depends_on:
-      - noip
+      - ddns
     networks:
       vpn:
         ipv4_address: 10.1.0.12
@@ -39,14 +29,14 @@ services:
       - ./certbot-etc-letsencrypt/:/etc/letsencrypt/
       - ./certbot-var-lib-letsencrypt/:/var/lib/letsencrypt/
       - ./certbot-var-www-letsencrypt/:/var/www/letsencrypt/
-    restart: on-failure:5
-    command: certonly --standalone --non-interactive --preferred-challenges http --agree-tos --email !EMAIL! -d !DDNS!
+    restart: on-failure:4
+    command: certonly --standalone --non-interactive --preferred-challenges http --agree-tos --email EMAIL!!! -d DDNS!!!
 
   wireguard:
     container_name: wg
     image: linuxserver/wireguard:latest # https://hub.docker.com/r/linuxserver/wireguard
     depends_on:
-      - noip
+      - ddns
       - pihole
     networks:
       vpn:
@@ -55,12 +45,12 @@ services:
       - 51820:51820/udp
     dns: 10.1.0.3
     environment:
-      PUID: 1000
-      PGID: 1000
+      PUID: 1001
+      PGID: 1001
       TZ: America/New_York
-      PEERS: !PEERS!
+      PEERS: PEERS!!!
       INTERNAL_SUBNET: 10.1.1.0
-      SERVERURL: !DDNS!
+      SERVERURL: DDNS!!!
       SERVERPORT: 51820
       ALLOWEDIPS: 10.1.0.0/16
     volumes:
@@ -96,8 +86,8 @@ services:
       REV_SERVER: 'true'
       REV_SERVER_TARGET: 10.1.0.1
       REV_SERVER_CIDR: 10.1.0.0/16
-      ADMIN_EMAIL: !EMAIL!
-      WEBPASSWORD: !PIPASS!
+      ADMIN_EMAIL: EMAIL!!!
+      WEBPASSWORD: PIPASS!!!
     volumes:
        - ./pihole-etc-pihole/:/etc/pihole/
        - ./pihole-etc-dnsmasq.d/:/etc/dnsmasq.d/
@@ -124,23 +114,24 @@ services:
     container_name: proxy
     image: chenhw2/dnsproxy:latest # https://hub.docker.com/r/chenhw2/dnsproxy
     depends_on:
-      - noip
+      - ddns
       - certbot
       - pihole
     networks:
       vpn:
         ipv4_address: 10.1.0.5
     ports:
-      - 443:443/tcp
-      - 853:853/tcp
-      - 1853:1853/tcp
+      - 443:443/tcp # DNS-over-HTTPS
+      - 853:853/tcp # DNS-over-TLS
+      - 853:853/udp
+      - 1853:1853/tcp # DNS-over-QUIC
       - 1853:1853/udp
-      - 2853:2853/tcp
+      - 2853:2853/tcp # DNSCrypt
       - 2853:2853/udp
     volumes:
       - ./certbot-etc-letsencrypt/:/etc/letsencrypt/
     restart: unless-stopped
-    command: dnsproxy --verbose -l=0.0.0.0 -s=443 -t=853 -q=1853 -y=2853 -u=10.1.0.3 -f=1.1.1.1 -r=20 -c=/etc/letsencrypt/live/!DDNS!/fullchain.pem -k=/etc/letsencrypt/live/!DDNS!/privkey.pem --fastest-addr --refuse-any --udp-buf-size=1024
+    command: dnsproxy --verbose -l=0.0.0.0 -s=443 -t=853 -q=1853 -y=2853 -u=10.1.0.3 -f=1.1.1.1 -r=20 -c=/etc/letsencrypt/live/DDNS!!!/fullchain.pem -k=/etc/letsencrypt/live/DDNS!!!/privkey.pem --fastest-addr --refuse-any --udp-buf-size=1024
 
 networks:
   vpn:
