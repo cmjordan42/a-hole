@@ -53,8 +53,8 @@ Ad-blocking DNS-over-TLS, DNS-over-HTTPS, and DNS-via-VPN. Instructions to get i
 >Prep time: 11 min\
 >Baking time: 4 min
 
-# How-to
-## 1. Get cloud infrastructure
+# How-to...
+# 1. Get cloud infrastructure
 You'll need a cloud infrastructure provider where you can:
 - Instantiate a host instance
 - Configure the firewall rules to allow ports to pass through from the Internet into the instance
@@ -65,7 +65,7 @@ For example, Oracle Cloud as it has an "Always Free" tier that allows me to run 
 2. `Sign Up` for an Oracle Cloud Infrastrcture account.
 3. Choose a region that's reasonably proximate to where you live.
 
-## 2. Set up firewall rules
+# 2. Set up firewall rules
 We've got all of the firewall management within the host handled, but we'll need to make sure that our cloud infrastructure provider allows a few ports through to our host.
 
 For example, in Oracle Cloud we'll need to configure our Security List on our Virtual Cloud Network. Follow the steps below to get through this.
@@ -95,7 +95,7 @@ Ports are as follows...
 | DNS-over-QUIC | TCP & UDP | 1853
 | DNSCrypt | TCP & UDP | 2853
 
-## 3. Create a host instance
+# 3. Create a host instance
 We need our cloud host instance where `a-hole` will run.
 
 For example, in Oracle Cloud we'll need to create and configure a new instance.
@@ -109,7 +109,7 @@ For example, in Oracle Cloud we'll need to create and configure a new instance.
 7. At the very bottom of the page, `Create`.
 8. On the `Instance details` page, after a little while, a public IP will be assigned and populate the `Instance access` section next to `Public IP address`. Copy and save this IP address somewhere; it'll be needed later.
 
-## 4. Set up DDNS
+# 4. Set up DDNS
 We need to use DDNS to identify our host by a domain name. If we used its IP, we would have to painstakingly update all client configurations in the event of the host being assigned a new IP.
 
 For example, we'll set up a DDNS domain name via DuckDNS:
@@ -121,29 +121,34 @@ For example, we'll set up a DDNS domain name via DuckDNS:
 4. Your domain name should now be listed in the middle of the page. Above, there is a section that lists account details and included in that is `token`. Copy and save the token value somewhere; it'll be needed later.
 ![Token](/media/duckdns-token.png)
 
-## 5. Customizations prior to installation
+# 5. Customizations prior to installation
 When running `remote-init.sh`, placeholder values are replaced with parameters provided. Placeholders in files are denoted by postpended `!!!`, such as `PLACEHOLDER!!!`. The following files also have some other optional tuneables:
 
 `docker-compose.yml`: Optionally, change `TZ` from America/New_York to your own timezone.
 
 `unbound.conf`: Optionally, change `forward-addr` from OpenDNS IPs to Internet DNS servers of your choice
 
-## 6. Install
+# 6. Install
 Run `remote-init.sh` from your local Linux shell which orchestrates various configurations of the cloud host instance to get it ready to run `a-hole`. Take care in inputting your parameters properly as arguments. Escape special characters (i.e. in passwords) and wrap your peer list in double quotes.
 
 ```
 > ./remote-init.sh IP DDNS EMAIL DDNSUSER DNDSPASS PIPASS PEERS
 > ./remote-init.sh  <the IP of your host instance>    i.e. 123.456.789.000
-                    <DDNS domain name>                i.e. my.ddns.net
+                    <DDNS domain name>                i.e. my.duckdns.org
                     <your email address>              i.e. me@gmail.com
                     <your NOIP username>              i.e. noipme
                     <your NOIP password>              i.e. my1securepass\!
                     <your desired Pihole password>    i.e. mypip4ss
                     <comma-separated list of peers>   i.e. "pc, pixel, iphone"
-> ./remote-init.sh 123.456.789.000 my.ddns.net me@gmail.com noipme my1securepass\! mypip4ss "pc, pixel, iphone"
+> ./remote-init.sh 123.456.789.000 my.duckdns.org me@gmail.com noipme my1securepass\! mypip4ss "pc, pixel, iphone"
 ```
 > Once `remote-init.sh` has completed and you're SSH'd into your cloud host instance, you're up and running! Now you can use `control.py` to perform common operations...
 
+SSH into your host instance from your local machine
+```
+> ssh ubuntu@<your DDNS domain name>
+> ssh ubuntu@my.duckdns.org
+```
 Set or reset the password to login to pihole
 ```
 > ./control.py pihole password <mypassword>
@@ -177,10 +182,10 @@ Run an arbitrary command in a running container
 > ./control.py  - echo "hi a-hole"
 hi a-hole
 ```
-## 6. How to configure some common clients
-PC using Wireguard
+# 7. How to configure some common clients
+## PC using Wireguard
 
-- On the cloud host, run the following command to print out the Wireguard client configuration
+1. On the cloud host, run the following command to print out the Wireguard client configuration.
     ```
     > ./control.py wg config <client name>
     > ./control.py wg config pc
@@ -196,19 +201,19 @@ PC using Wireguard
     Endpoint = me.ddns.net:51820
     AllowedIPs = 10.1.0.0/16
     ```
-- Copy all of the above lines including `[Interface]`
-- Open Wireguard on your PC and `Add empty tunnel...`
-- Paste the above into tunnel configuration, name it `a-hole`, and save it
-- Activate `a-hole` and the client device is now up and running
+2. Copy all of the above lines including `[Interface]`.
+3. Open Wireguard on your PC and `Add empty tunnel...`.
+4. Paste the above into tunnel configuration, name it `a-hole`, and save it.
+5. Activate `a-hole` and the client device is now up and running.
 
-Mobile using DNS-over-TLS
+## Mobile using DNS-over-TLS
 > Possible on Android devices but I believe iOS does not support DNS-over-TLS
-- This depends on specific Android OS, but generally, open `Settings`
-- Search settings for `Private DNS`, open this section of Settings
-- Select `Private DNS provider hostname` and enter your DDNS domain name i.e. `me.ddns.net` 
+1. This depends on specific Android OS, but generally, open `Settings`.
+2. Search settings for `Private DNS`, open this section of Settings.
+3. Select `Private DNS provider hostname` and enter your DDNS domain name i.e. `my.duckdns.org`.
 
-Mobile using Wireguard
-- On the cloud host, run the following command for a QR of the Wireguard client configuration
+## Mobile using Wireguard
+1. On the cloud host, run the following command for a QR of the Wireguard client configuration.
 ```
 > ./control.py wg qr <client name>
 > ./control.py wg qr mobile
@@ -250,9 +255,23 @@ PEER mobile QR code:
 █████████████████████████████████████████████████████████████████████
 █████████████████████████████████████████████████████████████████████
 ```
-- On your mobile device, install the Wireguard app
-- Open the Wireguard app and tap the `+` in the corner
-- Select `Scan from QR code`
-- Point your camera at the QR, name it `a-hole`, and save it
-- Enable `a-hole` and now this client is up and running
-- You can optionally further configure your mobile device to automatically enable `a-hole` whenever the device is on
+2. On your mobile device, install the Wireguard app.
+3. Open the Wireguard app and tap the `+` in the corner.
+4. Select `Scan from QR code`.
+5. Point your camera at the QR, name it `a-hole`, and save it.
+6. Enable `a-hole` and now this client is up and running.
+7. You can optionally further configure your mobile device to automatically enable `a-hole` whenever the device is on.
+
+## To add additional clients later
+1. Open `docker-compose.yml` for editing on your host instance.
+2. Find the environment variable `PEERS:` under the `Wireguard` section.
+3. Postpend the name of your new peer(s) onto this comma-separated list, then save it.
+4. On your host instance, run the following command:
+```
+> ./control.py - up
+```
+5. View the QR code or configuration of your new Wireguard client
+```
+> ./control.py wg qr <new client name>
+> ./control.py wg config <new client name>
+```
