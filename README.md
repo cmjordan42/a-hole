@@ -1,5 +1,5 @@
 # `a*hole`
-A cloud-hosted blackhole for ads with many interfaces.
+A cloud-hosted blackhole for ads with a smörgåsbord of secure interfaces.
 
 (tldr at the end)
 
