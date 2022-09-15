@@ -11,7 +11,7 @@ So, I decided to do it again but do it in a way that's entirely reproduceable so
 # Objectives
 The goal of this is to provide a low-maintenance setup to provide secure ad-blocking DNS service with a spectrum of access methods for a handful of known users and their devices.
 
-Downtime is acceptable and in order to keep the installation within the bounds of the Oracle Cloud free tier, there is limited fault tolerance and redundancy. Expect an installation to have issues semi-annually that can be resolved with minimal debugging or maybe just a reinstallation or an update. No worried about random users accessing the non-VPN endpoints so long as it's limited and without apparent malice.
+Downtime is acceptable and in order to keep the installation within the bounds of the Oracle Cloud free tier, there is limited fault tolerance and redundancy. Expect an installation to have issues semi-annually that can be resolved with minimal debugging or maybe just a reinstallation or an update. Not worried about random users accessing the non-VPN endpoints so long as it's limited and without apparent malice.
 
 # Overview of components
 ## [Ubuntu](https://ubuntu.com/)
