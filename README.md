@@ -15,7 +15,7 @@ Downtime is acceptable and in order to keep the installation within the bounds o
 
 # Overview of components
 ## [Ubuntu](https://ubuntu.com/)
-Ubuntu on an AMD processor is the OS of choice where I'm certain this works. Ubuntu because it's universal; AMD because it's one of the two flavors of free-tier hardware in Oracle Cloud's free tier.
+Ubuntu on an AMD processor is the platform of choice and where I'm certain this works. Ubuntu because it's universal; AMD because it's one of the two flavors of free-tier hardware in Oracle Cloud's free tier and ARM is a lot less reliable for Docker builds at this point in time.
 
 ## [Docker](https://www.docker.com/)
 Docker was a key ingredient to this to keep portability high and not recreate infrastructure that already existed, but also rely on configuration over code to allow relatively low-tech people to have a chance to get this up and running for themselves and perhaps become slightly-higher-tech through the process.
