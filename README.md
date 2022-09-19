@@ -1,5 +1,5 @@
 # `a*hole`
-A cloud-hosted blackhole for ads with many interfaces.
+A cloud-hosted blackhole for ads with a smörgåsbord of secure interfaces.
 
 (tldr at the end)
 
@@ -11,11 +11,11 @@ So, I decided to do it again but do it in a way that's entirely reproduceable so
 # Objectives
 The goal of this is to provide a low-maintenance setup to provide secure ad-blocking DNS service with a spectrum of access methods for a handful of known users and their devices.
 
-Downtime is acceptable and in order to keep the installation within the bounds of the Oracle Cloud free tier, there is limited fault tolerance and redundancy. Expect an installation to have issues semi-annually that can be resolved with minimal debugging or maybe just a reinstallation or an update. No worried about random users accessing the non-VPN endpoints so long as it's limited and without apparent malice.
+Downtime is acceptable and in order to keep the installation within the bounds of the Oracle Cloud free tier, there is limited fault tolerance and redundancy. Expect an installation to have issues semi-annually that can be resolved with minimal debugging or maybe just a reinstallation or an update. Not worried about random users accessing the non-VPN endpoints so long as it's limited and without apparent malice.
 
 # Overview of components
 ## [Ubuntu](https://ubuntu.com/)
-Ubuntu on an AMD processor is the OS of choice where I'm certain this works. Ubuntu because it's universal; AMD because it's one of the two flavors of free-tier hardware in Oracle Cloud's free tier.
+Ubuntu on an AMD processor is the platform of choice and where I'm certain this works. Ubuntu because it's universal; AMD because it's one of the two flavors of free-tier hardware in Oracle Cloud's free tier and ARM is a lot less reliable for Docker builds at this point in time.
 
 ## [Docker](https://www.docker.com/)
 Docker was a key ingredient to this to keep portability high and not recreate infrastructure that already existed, but also rely on configuration over code to allow relatively low-tech people to have a chance to get this up and running for themselves and perhaps become slightly-higher-tech through the process.
@@ -59,7 +59,7 @@ You'll need a cloud infrastructure provider where you can:
 - Instantiate a host instance
 - Configure the firewall rules to allow ports to pass through from the Internet into the instance
 
-For example, Oracle Cloud as it has an "Always Free" tier that allows me to run this for free. Follow the steps below to get through this.
+For example, Oracle Cloud as it has an "Always Free" tier that allows me to run this for free. Follow the steps below to check this off.
 
 1. https://cloud.oracle.com.
 2. `Sign Up` for an Oracle Cloud Infrastrcture account.
@@ -68,7 +68,7 @@ For example, Oracle Cloud as it has an "Always Free" tier that allows me to run 
 # 2. Set up firewall rules
 We've got all of the firewall management within the host handled, but we'll need to make sure that our cloud infrastructure provider allows a few ports through to our host.
 
-For example, in Oracle Cloud we'll need to configure our Security List on our Virtual Cloud Network. Follow the steps below to get through this.
+For example, in Oracle Cloud we'll need to configure our Security List on our Virtual Cloud Network. Follow the steps below to check this off.
 
 1. In Oracle Cloud, in the search entry at the top, query for `Virtual Cloud Networks` and navigate into the service (hereforth referred to as VCN).
 2. In the VCNs page, tap the button to `Create VCN`.
@@ -98,7 +98,7 @@ Ports are as follows...
 # 3. Create a host instance
 We need our cloud host instance where `a-hole` will run.
 
-For example, in Oracle Cloud we'll need to create and configure a new instance.
+For example, in Oracle Cloud we'll need to create and configure a new instance. Follow the steps below to check this off.
 
 1. In Oracle Cloud, in the search entry at the top, query for `Instances` and navigate into the service.
 2. In the Instances page, tap the `Create Instance` button.
@@ -112,7 +112,7 @@ For example, in Oracle Cloud we'll need to create and configure a new instance.
 # 4. Set up DDNS
 We need to use DDNS to identify our host by a domain name. If we used its IP, we would have to painstakingly update all client configurations in the event of the host being assigned a new IP.
 
-For example, we'll set up a DDNS domain name via DuckDNS:
+For example, you can up a DDNS domain name via DuckDNS. Follow the steps below to check this off.
 
 1. Go to https://duckdns.org.
 2. Register an account.
@@ -121,15 +121,17 @@ For example, we'll set up a DDNS domain name via DuckDNS:
 4. Your domain name should now be listed in the middle of the page. Above, there is a section that lists account details and included in that is `token`. Copy and save the token value somewhere; it'll be needed later.
 ![Token](/media/duckdns-token.png)
 
-# 5. Customizations prior to installation
+# 5. (Optional) Customizations prior to installation
 When running `remote-init.sh`, placeholder values are replaced with parameters provided. Placeholders in files are denoted by postpended `!!!`, such as `PLACEHOLDER!!!`. The following files also have some other optional tuneables:
 
-`docker-compose.yml`: Optionally, change `TZ` from America/New_York to your own timezone.
+`docker-compose.yml`: Change `TZ` from America/New_York to your own timezone.
 
-`unbound.conf`: Optionally, change `forward-addr` from OpenDNS IPs to Internet DNS servers of your choice
+`unbound.conf`: Change `forward-addr` from OpenDNS IPs to Internet DNS servers of your choice.
+
+Peruse other files if you'd like and there may be some other modifications you'd like to make, but I've designed most other things to be tightly coupled.
 
 # 6. Install
-Run `remote-init.sh` from your local Linux shell which orchestrates various configurations of the cloud host instance to get it ready to run `a-hole`. Take care in inputting your parameters properly as arguments. Escape special characters (i.e. in passwords) and wrap your peer list in double quotes.
+Run `remote-init.sh` from your local Linux shell which orchestrates various configurations of the cloud host instance to get it ready to run `a-hole`. Take care in inputting your parameters properly as arguments. Escape special characters (i.e. in passwords) and wrap your peer list in double quotes:
 
 ```
 > ./remote-init.sh IP DDNS EMAIL DDNSUSER DNDSPASS PIPASS PEERS
@@ -144,39 +146,39 @@ Run `remote-init.sh` from your local Linux shell which orchestrates various conf
 ```
 > Once `remote-init.sh` has completed and you're SSH'd into your cloud host instance, you're up and running! Now you can use `control.py` to perform common operations...
 
-SSH into your host instance from your local machine
+SSH into your host instance from your local machine:
 ```
 > ssh ubuntu@<your DDNS domain name>
 > ssh ubuntu@my.duckdns.org
 ```
-Set or reset the password to login to pihole
+Set or reset the password to login to pihole:
 ```
 > ./control.py pihole password <mypassword>
 > ./control.py pihole password mYa-h0le!
   [✓] New password set
 ```
-Bring `a-hole` up
+Bring `a-hole` up:
 ```
 > ./control.py - up
 ```
-Bring `a-hole` down
+Bring `a-hole` down:
 ```
 > ./control.py - down
 ```
-View logs of a container
+View logs of a container:
 ```
 > ./control.py <container> ?
 > ./control.py certbot ?
 Account registered.
 Requesting a certificate...
 ```
-Open an interactive shell to a container if it supports it
+Open an interactive shell to a container (if it supports a shell):
 ```
 > ./control.py <container> /
 > ./control.py nginx /
 nginx > 
 ```
-Run an arbitrary command in a running container
+Run an arbitrary command in a running container:
 ```
 > ./control.py <container> - <arbitrary command>
 > ./control.py  - echo "hi a-hole"
@@ -184,8 +186,7 @@ hi a-hole
 ```
 # 7. How to configure some common clients
 ## PC using Wireguard
-
-1. On the cloud host, run the following command to print out the Wireguard client configuration.
+1. On the cloud host, run the following command to print out the Wireguard client configuration:
     ```
     > ./control.py wg config <client name>
     > ./control.py wg config pc
@@ -207,13 +208,13 @@ hi a-hole
 5. Activate `a-hole` and the client device is now up and running.
 
 ## Mobile using DNS-over-TLS
-> Possible on Android devices but I believe iOS does not support DNS-over-TLS
+> Possible on Android devices but I believe iOS does not support DNS-over-TLS.
 1. This depends on specific Android OS, but generally, open `Settings`.
 2. Search settings for `Private DNS`, open this section of Settings.
 3. Select `Private DNS provider hostname` and enter your DDNS domain name i.e. `my.duckdns.org`.
 
 ## Mobile using Wireguard
-1. On the cloud host, run the following command for a QR of the Wireguard client configuration.
+1. On the cloud host, run the following command for a QR of the Wireguard client configuration:
 ```
 > ./control.py wg qr <client name>
 > ./control.py wg qr mobile
@@ -270,7 +271,7 @@ PEER mobile QR code:
 ```
 > ./control.py - up
 ```
-5. View the QR code or configuration of your new Wireguard client
+5. View the QR code or configuration of your new Wireguard client:
 ```
 > ./control.py wg qr <new client name>
 > ./control.py wg config <new client name>
