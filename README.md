@@ -134,17 +134,16 @@ Peruse other files if you'd like and there may be some other modifications you'd
 Run `remote-init.sh` from your local Linux shell which orchestrates various configurations of the cloud host instance to get it ready to run `a-hole`. Take care in inputting your parameters properly as arguments. Escape special characters (i.e. in passwords) and wrap your peer list in double quotes:
 
 ```
-> ./remote-init.sh IP DDNS EMAIL DDNS-USER DDNS-PASS PI-PASS PEERS (COPY-FROM-DDNS)
+> ./remote-init.sh IP EMAIL DDNS DDNS-PASS PI-PASS PEERS (COPY-FROM-DDNS)
 > ./remote-init.sh  <the IP of your host instance>      i.e. 123.456.789.000
-                    <DDNS domain name>                  i.e. my.duckdns.org
                     <your email address>                i.e. me@gmail.com
-                    <your NOIP username>                i.e. noipme
-                    <your NOIP password>                i.e. my1securepass\!
+                    <DDNS domain name>                  i.e. my.duckdns.org
+                    <your DuckDNS token>                i.e. 10tkcxmMC20kfj9aj903q04Gj94j2l4C9s8S
                     <your desired Pihole password>      i.e. mypip4ss
                     <comma-separated list of peers>     i.e. "pc, pixel, iphone"
         (optional)  <DDNS of instance to restore from>  i.e. my-test.duckdns.org
                     
-> ./remote-init.sh 123.456.789.000 my.duckdns.org me@gmail.com noipme my1securepass\! mypip4ss "pc, pixel, iphone" my-test.duckdns.org
+> ./remote-init.sh 123.456.789.000 me@gmail.com my.duckdns.org 10tkcxmMC20kfj9aj903q04Gj94j2l4C9s8S mypip4ss "pc, pixel, iphone" my-test.duckdns.org
 ```
 > Once `remote-init.sh` has completed and you're SSH'd into your cloud host instance, you're up and running! Now you can use `control.py` to perform common operations...
 
