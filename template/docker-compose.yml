@@ -131,7 +131,7 @@ services:
     volumes:
       - ./certbot-etc-letsencrypt/:/etc/letsencrypt/
     restart: unless-stopped
-    command: dnsproxy --verbose -l=0.0.0.0 -s=443 -t=853 -q=1853 -y=2853 -u=10.1.0.3 -f=1.1.1.1 -r=20 -c=/etc/letsencrypt/live/DDNS!!!/fullchain.pem -k=/etc/letsencrypt/live/DDNS!!!/privkey.pem --fastest-addr --refuse-any --udp-buf-size=1024
+    command: dnsproxy -l=0.0.0.0 -s=443 -t=853 -q=1853 -y=2853 -u=10.1.0.3 -f=1.1.1.1 -r=20 -c=/etc/letsencrypt/live/DDNS!!!/fullchain.pem -k=/etc/letsencrypt/live/DDNS!!!/privkey.pem --fastest-addr --refuse-any --udp-buf-size=1024
 
 networks:
   vpn:
