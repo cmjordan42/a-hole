@@ -41,7 +41,7 @@ else
     scp -r ubuntu@${COPYFROMDDNS}:~/wireguard-config ./tmp/
     scp -r ./tmp/wireguard-config ubuntu@${IP}:~/
     rm -rf ./tmp
-fi    
+fi
 
 # bring up the platform
 echo "--- A-HOLE bringing up platform"
