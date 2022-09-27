@@ -29,7 +29,7 @@ services:
       - ./certbot-etc-letsencrypt/:/etc/letsencrypt/
       - ./certbot-var-lib-letsencrypt/:/var/lib/letsencrypt/
       - ./certbot-var-www-letsencrypt/:/var/www/letsencrypt/
-    restart: on-failure:4
+    restart: on-failure:2
     command: certonly --standalone --non-interactive --preferred-challenges http --agree-tos --email EMAIL!!! -d DDNS!!!
 
   wireguard:

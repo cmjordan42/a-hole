@@ -14,6 +14,8 @@ if [ -z "$IP" ] || [ -z "$EMAIL" ] || [ -z "$DDNS" ] || [ -z "$DDNSPASS" ] || [ 
     exit
 fi
 
+ssh-keygen -f "~/.ssh/known_hosts" -R "${DDNS}"
+
 echo "--- A-HOLE stage files to ./${DDNS} and substitute configuration parameters"
 mkdir -p ./${DDNS}
 cp ./template/* ./${DDNS}/
@@ -34,12 +36,12 @@ if [ -z "$COPYFROMDDNS" ]; then
 else
     echo "--- A-HOLE restoring metadata from ${COPYFROMDDNS}"
     mkdir -p ./tmp
-    scp -r ubuntu@${COPYFROMDDNS}:~/pihole-etc-dnsmasq.d ./tmp/
-    scp -r ./tmp/pihole-etc-dnsmasq.d ubuntu@${IP}:~/
-    scp -r ubuntu@${COPYFROMDDNS}:~/pihole-etc-pihole ./tmp/
-    scp -r ./tmp/pihole-etc-pihole ubuntu@${IP}:~/
-    scp -r ubuntu@${COPYFROMDDNS}:~/wireguard-config ./tmp/
-    scp -r ./tmp/wireguard-config ubuntu@${IP}:~/
+    scp -oStrictHostKeyChecking=no -r ubuntu@${COPYFROMDDNS}:~/pihole-etc-dnsmasq.d ./tmp/
+    scp -oStrictHostKeyChecking=no -r ./tmp/pihole-etc-dnsmasq.d ubuntu@${IP}:~/
+    scp -oStrictHostKeyChecking=no -r ubuntu@${COPYFROMDDNS}:~/pihole-etc-pihole ./tmp/
+    scp -oStrictHostKeyChecking=no -r ./tmp/pihole-etc-pihole ubuntu@${IP}:~/
+    scp -oStrictHostKeyChecking=no -r ubuntu@${COPYFROMDDNS}:~/wireguard-config ./tmp/
+    scp -oStrictHostKeyChecking=no -r ./tmp/wireguard-config ubuntu@${IP}:~/
     rm -rf ./tmp
 fi
 
