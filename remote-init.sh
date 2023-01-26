@@ -29,7 +29,7 @@ echo "--- A-HOLE copying files to target host"
 scp -oStrictHostKeyChecking=no -r ./${DDNS}/* ubuntu@${IP}:~/
 
 echo "--- A-HOLE running local init"
-ssh -oStrictHostKeyChecking=no ubuntu@${IP} ./local-init.sh
+ssh -oStrictHostKeyChecking=no ubuntu@${IP} ./init-ahole.sh
 
 if [ -z "$COPYFROMDDNS" ]; then
     echo "--- A-HOLE no DDNS specified to restore from; continuing"
