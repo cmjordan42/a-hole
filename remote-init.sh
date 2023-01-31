@@ -19,7 +19,7 @@ ssh-keygen -f "~/.ssh/known_hosts" -R "${DDNS}"
 echo "--- A-HOLE waiting for availability of ${IP}"
 continue="yes"
 while [ "$continue" = "yes" ]; do
-    ssh ubuntu@${IP} uptime
+    ssh -oStrictHostKeyChecking=no ubuntu@${IP} uptime
     rc=$?
 
     if [ $rc -ne 255 ] ; then
