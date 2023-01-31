@@ -16,6 +16,21 @@ fi
 
 ssh-keygen -f "~/.ssh/known_hosts" -R "${DDNS}"
 
+echo "--- A-HOLE waiting for availability of ${IP}"
+continue="yes"
+while [ "$continue" = "yes" ]; do
+    ssh ubuntu@${IP} uptime
+    rc=$?
+
+    if [ $rc -ne 255 ] ; then
+        echo "--- A-HOLE ${IP} is available; proceeding"
+        continue="no"
+    else
+        echo "--- A-HOLE ${IP} unavailable"
+        sleep 3
+    fi
+done
+
 echo "--- A-HOLE stage files to ./${DDNS} and substitute configuration parameters"
 mkdir -p ./${DDNS}
 cp ./template/* ./${DDNS}/
@@ -34,14 +49,23 @@ ssh -oStrictHostKeyChecking=no ubuntu@${IP} ./init-ahole.sh
 if [ -z "$COPYFROMDDNS" ]; then
     echo "--- A-HOLE no DDNS specified to restore from; continuing"
 else
-    echo "--- A-HOLE restoring metadata from ${COPYFROMDDNS}"
     mkdir -p ./tmp
+
+    echo "--- A-HOLE restoring metadata from ${COPYFROMDDNS}:~/pihole-etc-dnsmasq.d"
     scp -oStrictHostKeyChecking=no -r ubuntu@${COPYFROMDDNS}:~/pihole-etc-dnsmasq.d ./tmp/
+    echo "--- A-HOLE restoring metadata to ${IP}:~/pihole-etc-dnsmasq.d"
     scp -oStrictHostKeyChecking=no -r ./tmp/pihole-etc-dnsmasq.d ubuntu@${IP}:~/
+
+    echo "--- A-HOLE restoring metadata from ${COPYFROMDDNS}:~/pihole-etc-pihole"
     scp -oStrictHostKeyChecking=no -r ubuntu@${COPYFROMDDNS}:~/pihole-etc-pihole ./tmp/
+    echo "--- A-HOLE restoring metadata to ${IP}:~/pihole-etc-pihole"
     scp -oStrictHostKeyChecking=no -r ./tmp/pihole-etc-pihole ubuntu@${IP}:~/
+    
+    echo "--- A-HOLE restoring metadata from ${COPYFROMDDNS}:~/wireguard-config"
     scp -oStrictHostKeyChecking=no -r ubuntu@${COPYFROMDDNS}:~/wireguard-config ./tmp/
+    echo "--- A-HOLE restoring metadata to ${IP}:~/wireguard-config"
     scp -oStrictHostKeyChecking=no -r ./tmp/wireguard-config ubuntu@${IP}:~/
+
     rm -rf ./tmp
 fi
 
