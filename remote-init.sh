@@ -7,14 +7,14 @@ DDNS=$3
 DDNSPASS=$4
 PIPASS=$5
 PEERS=$6
-COPYFROMDDNS=$7
+COPYFROMIP=$7
 
 if [ -z "$IP" ] || [ -z "$EMAIL" ] || [ -z "$DDNS" ] || [ -z "$DDNSPASS" ] || [ -z "$PIPASS" ] || [ -z "$PEERS" ]; then
     echo "missing parameters: remote-init.sh <IP> <email address> <DDNS> <DDNS password> <password to set for Pihole> <list of Wireguard peer names>"
     exit
 fi
 
-ssh-keygen -f "~/.ssh/known_hosts" -R "${DDNS}"
+ssh-keygen -f "${HOME}/.ssh/known_hosts" -R "${DDNS}"
 
 echo "--- A-HOLE waiting for availability of ${IP}"
 continue="yes"
@@ -41,37 +41,34 @@ sed -i "s/PIPASS\!\!\!/$PIPASS/g" ./${DDNS}/*
 sed -i "s/PEERS\!\!\!/$PEERS/g" ./${DDNS}/*
 
 echo "--- A-HOLE copying files to target host"
-scp -oStrictHostKeyChecking=no -r ./${DDNS}/* ubuntu@${IP}:~/
+rsync -r --progress ./${DDNS}/* ubuntu@${IP}:~/a-hole/
 
 echo "--- A-HOLE running local init"
-ssh -oStrictHostKeyChecking=no ubuntu@${IP} ./init-ahole.sh
+ssh -oStrictHostKeyChecking=no ubuntu@${IP} ./a-hole/init-ahole.sh
 
-if [ -z "$COPYFROMDDNS" ]; then
+if [ -z "$COPYFROMIP" ]; then
     echo "--- A-HOLE no DDNS specified to restore from; continuing"
 else
     mkdir -p ./tmp
 
-    echo "--- A-HOLE restoring metadata from ${COPYFROMDDNS}:~/pihole-etc-dnsmasq.d"
-    scp -oStrictHostKeyChecking=no -r ubuntu@${COPYFROMDDNS}:~/pihole-etc-dnsmasq.d ./tmp/
-    echo "--- A-HOLE restoring metadata to ${IP}:~/pihole-etc-dnsmasq.d"
-    scp -oStrictHostKeyChecking=no -r ./tmp/pihole-etc-dnsmasq.d ubuntu@${IP}:~/
+    echo "--- A-HOLE restoring metadata from ${COPYFROMIP}:~/a-hole/pihole-etc-dnsmasq.d"
+    scp -oStrictHostKeyChecking=no -r ubuntu@${COPYFROMIP}:~/pihole-etc-dnsmasq.d ./tmp/
 
-    echo "--- A-HOLE restoring metadata from ${COPYFROMDDNS}:~/pihole-etc-pihole"
-    scp -oStrictHostKeyChecking=no -r ubuntu@${COPYFROMDDNS}:~/pihole-etc-pihole ./tmp/
-    echo "--- A-HOLE restoring metadata to ${IP}:~/pihole-etc-pihole"
-    scp -oStrictHostKeyChecking=no -r ./tmp/pihole-etc-pihole ubuntu@${IP}:~/
+    echo "--- A-HOLE restoring metadata from ${COPYFROMIP}:~/a-hole/pihole-etc-pihole"
+    scp -oStrictHostKeyChecking=no -r ubuntu@${COPYFROMIP}:~/pihole-etc-pihole ./tmp/
     
-    echo "--- A-HOLE restoring metadata from ${COPYFROMDDNS}:~/wireguard-config"
-    scp -oStrictHostKeyChecking=no -r ubuntu@${COPYFROMDDNS}:~/wireguard-config ./tmp/
-    echo "--- A-HOLE restoring metadata to ${IP}:~/wireguard-config"
-    scp -oStrictHostKeyChecking=no -r ./tmp/wireguard-config ubuntu@${IP}:~/
+    echo "--- A-HOLE restoring metadata from ${COPYFROMIP}:~/a-hole/wireguard-config"
+    scp -oStrictHostKeyChecking=no -r ubuntu@${COPYFROMIP}:~/wireguard-config ./tmp/
+
+    echo "--- A-HOLE restoring metadata to ${IP}:~/a-hole/"
+    scp -oStrictHostKeyChecking=no -r ./tmp/ ubuntu@${IP}:~/a-hole/
 
     rm -rf ./tmp
 fi
 
 # bring up the platform
 echo "--- A-HOLE bringing up platform"
-ssh -oStrictHostKeyChecking=no ubuntu@${IP} ./control.py - up
+ssh -oStrictHostKeyChecking=no ubuntu@${IP} ./a-hole/control.py - up
 
 e_time=`date +%s`
 runtime=$((e_time-s_time))

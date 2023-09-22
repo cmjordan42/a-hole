@@ -1,6 +1,6 @@
 #!/bin/python3
 
-import sys, subprocess, argparse
+import sys, subprocess, argparse, os
 
 def main(argv):
     parser = argparse.ArgumentParser()
@@ -9,6 +9,7 @@ def main(argv):
     parser.add_argument('arguments', nargs=argparse.REMAINDER)
     cmd = parser.parse_args()
 
+    pwd = os.path.dirname(os.path.realpath(__file__))
     subsystem = cmd.subsystem[0]
     op = cmd.operation[0]
     args = cmd.arguments
@@ -16,12 +17,13 @@ def main(argv):
     dockerexec = [ 'docker', 'exec', '-it' ]
     command = []
 
+    dc_location = pwd + '/docker-compose.yml'
     if subsystem == '-':
         if op == 'up':
-            command += [ 'docker-compose', 'up', '-d' ]
+            command += [ 'docker-compose', '--file', dc_location, 'up', '-d' ]
             command += args
         elif op == 'down':
-            command += [ 'docker-compose', 'down' ]
+            command += [ 'docker-compose', '--file', dc_location, 'down' ]
             command += args
     elif op in ('/', '?', '-'):
         if op == '/':

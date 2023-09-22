@@ -34,7 +34,7 @@ services:
 
   wireguard:
     container_name: wg
-    image: linuxserver/wireguard:latest # https://hub.docker.com/r/linuxserver/wireguard
+    image: linuxserver/wireguard:v1.0.20210914-ls103 # https://hub.docker.com/r/linuxserver/wireguard
     depends_on:
       - ddns
       - pihole

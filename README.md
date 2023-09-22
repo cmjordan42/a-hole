@@ -94,6 +94,13 @@ Ports are as follows...
 | DNS-over-TLS | TCP & UDP | 853
 | DNS-over-QUIC | TCP & UDP | 1853
 | DNSCrypt | TCP & UDP | 2853
+12. In Oracle Cloud, in the search entry at teh top, query for `Internet Gateways` and navigate into the service (hereforth referred to as IG).
+13. In the IGs page, tap the button to `Create Internet Gateway`.
+14. Specify a name. Save.
+15. In Oracle Cloud, in the search entry at teh top, query for `Route Tables` and navigate into the service (hereforth referred to as IG).
+16. Tap the link for the default route table. 
+17. Tap the button to `Add Route Rule`.
+17. For `Target Type`, specify `Internet Gateway`. For `Desination CIDR Block`, specify `0.0.0.0/0`. For `Target`, select the IG you created. Save with `Add Route Rule`.
 
 # 3. Create a host instance
 We need our cloud host instance where `a-hole` will run.
