@@ -43,7 +43,7 @@ def main(argv):
                 command += [ 'pihole', '-a', '-p' ] + args
             elif op == 'status':
                 command += [ 'pihole', 'status' ]
-        elif subsystem in ('proxy'):
+        elif subsystem in ('dnsproxy'):
             print ('no specific commands')
         elif subsystem in ('unbound'):
             print ('no specific commands')

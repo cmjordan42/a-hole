@@ -29,7 +29,7 @@ services:
       - ./certbot-etc-letsencrypt/:/etc/letsencrypt/
       - ./certbot-var-lib-letsencrypt/:/var/lib/letsencrypt/
       - ./certbot-var-www-letsencrypt/:/var/www/letsencrypt/
-    restart: on-failure:2
+    restart: on-failure:1
     command: certonly --standalone --non-interactive --preferred-challenges http --agree-tos --email EMAIL!!! -d DDNS!!!
 
   wireguard:
@@ -65,7 +65,7 @@ services:
     extra_hosts:
       - host.docker.internal:host-gateway
     restart: unless-stopped
-  
+
   pihole:
     # https://github.com/pi-hole/docker-pi-hole
     container_name: pihole
@@ -76,21 +76,21 @@ services:
       vpn:
         ipv4_address: 10.1.0.3
     dns: 127.0.0.1
-    extra_hosts: 
+    extra_hosts:
       - local:10.1.0.1
     environment:
       TZ: America/New_York
       FTLCONF_LOCAL_IPV4: 10.1.0.3
       PIHOLE_DNS_: 10.1.0.4
-      DNSSEC: 'true'
-      REV_SERVER: 'true'
+      DNSSEC: "true"
+      REV_SERVER: "true"
       REV_SERVER_TARGET: 10.1.0.1
       REV_SERVER_CIDR: 10.1.0.0/16
       ADMIN_EMAIL: EMAIL!!!
       WEBPASSWORD: PIPASS!!!
     volumes:
-       - ./pihole-etc-pihole/:/etc/pihole/
-       - ./pihole-etc-dnsmasq.d/:/etc/dnsmasq.d/
+      - ./pihole-etc-pihole/:/etc/pihole/
+      - ./pihole-etc-dnsmasq.d/:/etc/dnsmasq.d/
     cap_add:
       - NET_ADMIN
     restart: unless-stopped
@@ -111,8 +111,8 @@ services:
     restart: unless-stopped
 
   dnsproxy:
-    container_name: proxy
-    image: chenhw2/dnsproxy:latest # https://hub.docker.com/r/chenhw2/dnsproxy
+    container_name: dnsproxy
+    image: adguard/dnsproxy:latest # https://hub.docker.com/r/adguard/dnsproxy
     depends_on:
       - ddns
       - certbot
@@ -130,8 +130,8 @@ services:
       - 2853:2853/udp
     volumes:
       - ./certbot-etc-letsencrypt/:/etc/letsencrypt/
+      - ./dnsproxy.yaml:/opt/dnsproxy/config.yaml
     restart: unless-stopped
-    command: dnsproxy -l=0.0.0.0 -s=443 -t=853 -q=1853 -y=2853 -u=10.1.0.3 -f=1.1.1.1 -r=20 -c=/etc/letsencrypt/live/DDNS!!!/fullchain.pem -k=/etc/letsencrypt/live/DDNS!!!/privkey.pem --fastest-addr --refuse-any --udp-buf-size=1024
 
 networks:
   vpn:
@@ -141,4 +141,3 @@ networks:
       config:
         - subnet: 10.1.0.0/16
           gateway: 10.1.0.1
-          
