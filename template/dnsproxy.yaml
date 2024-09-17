@@ -1,0 +1,28 @@
+upstream:
+  - "10.1.0.3:53"
+bootstrap:
+  - "10.1.0.3:53"
+listen-addrs:
+  - "0.0.0.0"
+fallback:
+  - "8.8.8.8"
+listen-ports:
+  - 443
+  - 853
+  - 1853
+  - 2853
+https-port:
+  - 443
+tls-port:
+  - 853
+quic-port:
+  - 1853
+dnscrypt-port:
+  - 2853
+ratelimit: 20
+upd-buf-size: 1024
+ratelimit-subnet-len-ipv4: 24
+ratelimit-subnet-len-ipv6: 64
+refuse-any: true
+tls-cert: "/etc/letsencrypt/live/DDNS!!!/fullchain.pem"
+tls-key: "/etc/letsencrypt/live/DDNS!!!/privkey.pem"
