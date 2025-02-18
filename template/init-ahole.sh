@@ -21,4 +21,4 @@ sudo systemctl enable docker.service
 sudo systemctl enable containerd.service
 
 echo "--- A-HOLE schedule host machine to reboot once a week on Wednesday morning at 4:00"
-    crontab -l | grep 'reboot' && echo '--- A-HOLE a scheduled reboot exists in crontab' || (crontab -l 2>/dev/null; echo "0 4 * * 3 sudo /usr/sbin/reboot") | crontab -
+sudo crontab -l | grep 'reboot' && echo '--- MYFI a scheduled reboot exists in crontab' || (sudo crontab -l 2>/dev/null; echo "0 5 * * 0 sudo /usr/sbin/reboot") | sudo crontab -
